@@ -39,7 +39,7 @@ def computeTracking(frame, min_hue, min_sat, min_val, max_hue, max_sat, max_val)
 
         cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255), 2)'''
 
-    return result
+    return mask
 
 def main():
     cap = cv2.VideoCapture(0)

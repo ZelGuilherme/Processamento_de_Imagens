@@ -7,7 +7,7 @@ def computeTracking(frame):
     #_, gray = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)
 
     hsvImage = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-	#205	178	100
+	#205    178	100
     lowerColor = np.array([[100], [200], [0]])
     upperColor = np.array([[150], [255], [255]])
 
@@ -51,6 +51,9 @@ def main():
 
         if cv2.waitKey(1) & 0xFF == ord('q') or 0xFF == 27:
             break
+        if cv2.waitKey(1) & 0xFF == ord('q') or 0xFF == 27:
+            break
+
     
     cap.release()
     cv2.destroyAllWindows()
