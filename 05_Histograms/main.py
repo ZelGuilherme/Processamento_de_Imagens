@@ -28,7 +28,7 @@ def displayHist(hist):
 def displayImgHist(image, flag):
     fig = plt.figure(figsize=(12,4))
     fig.add_subplot(1, 2, 1)
-    plt.imshow(image)
+    plt.imshow(image, cmap='Greys_r')
     plt.title("Imagem")
 
     if flag == "gray":
@@ -59,19 +59,19 @@ def equHistGray(image):
 
 def main():
     imageOneChannel = cv2.imread('images/CAT.jpg', 0)
-    imageGray = cv2.cvtColor(imageOneChannel, cv2.COLOR_BGR2RGB)
+    #imageGray = cv2.cvtColor(imageOneChannel, cv2.COLOR_BGR2RGB)
 
     imageRGB = cv2.imread('images/CAT.jpg')
     imageRGB = cv2.cvtColor(imageRGB, cv2.COLOR_BGR2RGB)
 
-    #displayImgHist(imageGray, "gray")
+    #displayImgHist(imageOneChannel, "gray")
     #displayImgHist(imageRGB, "rgb")
 
     #display2(equHistGray(imageOneChannel)[0], equHistGray(imageOneChannel)[1])
 
     listaArquivos = glob.glob("compara" + "/*.jpeg")
 
-    #print(listaArquivos)
+    print(listaArquivos)
 
     imagemS1 = cv2.imread("compara/S1.jpeg", 0)
     histogramaS1 = cv2.calcHist([imagemS1], [0], None, [256], [0, 256])
@@ -90,7 +90,13 @@ def main():
 
         comparacoes[arquivo] = comparaFinal
 
-    comparaSorted = sorted(comparacoes, reverse=True)
+    print(sorted([3,6,1,8]))
+
+    #ARRUMAR Ordenar pelo valor no lugar da string
+    comparaSorted = sorted(comparacoes)
     print("\nO arquivo " + comparaSorted[0] + " é o mais parecido com a imagem original\n")
+
+    print(comparacoes, "\n\n\n")
+    print(comparaSorted)
 
 main()
