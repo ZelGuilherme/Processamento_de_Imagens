@@ -74,7 +74,7 @@ def displayAllLimiar(image, thresh, max, figSizeX, figSizeY):
 
     plt.show()
 
-def datasetBinary(thresh, max):
+'''def datasetBinary(thresh, max):
     pathImg = "dataset/data/"
     pathPgm = "dataset/groundtruth"
     imgs = glob.glob(os.path.join(pathImg, '*.jpg'))
@@ -101,7 +101,7 @@ def datasetBinary(thresh, max):
         aux = aux + 1
     
     displayDouble("Binary", imgs[maisSemelhante], pgms[maisSemelhante], 14, 8)
-    return maisSemelhante, valorMaisSemelhante
+    return maisSemelhante, valorMaisSemelhante, imgs[maisSemelhante], pgms[maisSemelhante]
 
 def datasetBinaryInv(thresh, max):
     pathImg = "dataset/data/"
@@ -130,7 +130,7 @@ def datasetBinaryInv(thresh, max):
         aux = aux + 1
     
     displayDouble("BinaryInv", imgs[maisSemelhante], pgms[maisSemelhante], 14, 8)
-    return maisSemelhante, valorMaisSemelhante
+    return maisSemelhante, valorMaisSemelhante, imgs[maisSemelhante], pgms[maisSemelhante]
 
 def datasetTrunc(thresh, max):
     pathImg = "dataset/data/"
@@ -159,7 +159,7 @@ def datasetTrunc(thresh, max):
         aux = aux + 1
     
     displayDouble("Trunc", imgs[maisSemelhante], pgms[maisSemelhante], 14, 8)
-    return maisSemelhante, valorMaisSemelhante
+    return maisSemelhante, valorMaisSemelhante, imgs[maisSemelhante], pgms[maisSemelhante]
 
 def datasetToZero(thresh, max):
     pathImg = "dataset/data/"
@@ -188,7 +188,7 @@ def datasetToZero(thresh, max):
         aux = aux + 1
     
     displayDouble("ToZero", imgs[maisSemelhante], pgms[maisSemelhante], 14, 8)
-    return maisSemelhante, valorMaisSemelhante
+    return maisSemelhante, valorMaisSemelhante, imgs[maisSemelhante], pgms[maisSemelhante]
 
 def datasetToZeroInv(thresh, max):
     pathImg = "dataset/data/"
@@ -217,14 +217,66 @@ def datasetToZeroInv(thresh, max):
         aux = aux + 1
     
     displayDouble("ToZeroInv", imgs[maisSemelhante], pgms[maisSemelhante], 14, 8)
-    return maisSemelhante, valorMaisSemelhante
+    return maisSemelhante, valorMaisSemelhante, imgs[maisSemelhante], pgms[maisSemelhante]'''
+
+def dataset(thresh, max, type):
+    pathImg = "dataset/data/"
+    pathPgm = "dataset/groundtruth"
+    imgs = glob.glob(os.path.join(pathImg, '*.jpg'))
+    i = 0
+    for img in imgs:
+        imgs[i] = limiarType(cv2.imread(img), thresh, max, type)
+        i = i + 1
+    
+    pgms = glob.glob(os.path.join(pathPgm, '*.pgm'))
+    j = 0
+    for pgm in pgms:
+        pgms[j] = cv2.imread(pgm)
+        j = j + 1
+
+    maisSemelhante = ""
+    valorMaisSemelhante = 99999999999999999
+
+    aux = 0
+    for img in imgs:
+        err = mse(imgs[aux], pgms[aux])
+        if err < valorMaisSemelhante:
+            valorMaisSemelhante = err
+            maisSemelhante = aux
+        aux = aux + 1
+    
+    return maisSemelhante, valorMaisSemelhante, imgs[maisSemelhante], pgms[maisSemelhante]
+
+def similarity(imageA, imageB):
+    imageA = cv2.cvtColor(imageA, cv2.COLOR_BGR2GRAY)
+    imageB = cv2.cvtColor(imageB, cv2.COLOR_BGR2GRAY)
+
+    height, width = imageA.shape
+    equalPixelAmount = 0
+    for y in range(height):
+            for x in range(width):
+                if imageA[y][x] == imageB[y][x]:
+                    equalPixelAmount = equalPixelAmount + 1
+                    #print(equalPixelAmount)
+    
+    #print(equalPixelAmount)
+    #print(height * width)
+    similarityValue = (equalPixelAmount / (height * width))
+    return similarityValue
 
 
 def mse(imageA, imageB):
 	err = np.sum((imageA.astype("float") - imageB.astype("float")) ** 2)
-	err /= float(imageA.shape[0] * imageA.shape[1])
+	err = err / (float(imageA.shape[0] * imageA.shape[1]))
 	
 	return err
+
+def printInfo(imgRes, valRes, img, pgm, type):
+    print("\nMais semelhante " + str(type) + " : " + str(imgRes))
+    print("Valor MSE da imagem: " + str(valRes))
+    similaridade = similarity(img, pgm)
+    print(f"Porcentagem de similaridade: {similaridade:.3f}\n")
+    displayDouble(type, img, pgm, 12, 6)
 
 def main():
     '''imgGetul = cv2.imread("images/carta_getulio.jpg")
@@ -234,34 +286,28 @@ def main():
 
     #display(limiarType(imgGetul, 120, 255, "binaryInv"))
 
-    displayAllLimiar(BGRToRGB(imgGetul), 135, 255, 14, 8)
+    displayAllLimiar(BGRToRGB(imgGetul), 135, 255, 12, 6)
 
-    displayAllLimiar(BGRToRGB(imgMap1), 180, 255, 14, 8)
-    displayAllLimiar(BGRToRGB(imgMap2), 220, 255, 14, 8)
-    displayAllLimiar(BGRToRGB(imgMap3), 200, 255, 14, 8)'''
+    displayAllLimiar(BGRToRGB(imgMap1), 180, 255, 12, 6)
+    displayAllLimiar(BGRToRGB(imgMap2), 220, 255, 12, 6)
+    displayAllLimiar(BGRToRGB(imgMap3), 200, 255, 12, 6)'''
 
-    thresh = 50
+    thresh = 100
     max = 255
 
-    imgResBinary, valResBinary = datasetBinary(thresh, max)
-    imgResBinaryInv, valResBinaryInv = datasetBinaryInv(thresh, max)
-    imgResTrunc, valResTrunc = datasetTrunc(thresh, max)
-    imgResToZero, valRestToZero = datasetToZero(thresh, max)
-    imgResToZeroInv, valRestToZeroInv = datasetToZeroInv(thresh, max)
+    imgResBinary, valResBinary, imgBinary, pgmBinary = dataset(thresh, max, "binary")
+    printInfo(imgResBinary, valResBinary, imgBinary, pgmBinary, "binary")
 
-    print("\nMais semelhante Binary: " + str(imgResBinary))
-    print("Valor MSE da imagem: " + str(valResBinary))
+    imgResBinaryInv, valResBinaryInv, imgBinaryInv, pgmBinaryInv = dataset(thresh, max, "binaryInv")
+    printInfo(imgResBinaryInv, valResBinaryInv, imgBinaryInv, pgmBinaryInv, "binaryInv")
 
-    print("\nMais semelhante BinaryInv: " + str(imgResBinaryInv))
-    print("Valor MSE da imagem: " + str(valResBinaryInv))
+    imgResTrunc, valResTrunc, imgTrunc, pgmTrunc = dataset(thresh, max, "trunc")
+    printInfo(imgResTrunc, valResTrunc, imgTrunc, pgmTrunc, "trunc")
 
-    print("\nMais semelhante Trunc: " + str(imgResTrunc))
-    print("Valor MSE da imagem: " + str(valResTrunc))
-    
-    print("\nMais semelhante ToZero: " + str(imgResToZero))
-    print("Valor MSE da imagem: " + str(valRestToZero))
+    imgResToZero, valRestToZero, imgToZero, pgmToZero = dataset(thresh, max, "toZero")
+    printInfo(imgResToZero, valRestToZero, imgToZero, pgmToZero, "toZero")
 
-    print("\nMais semelhante ToZeroInv: " + str(imgResToZeroInv))
-    print("Valor MSE da imagem: " + str(valRestToZeroInv) + "\n")
+    imgResToZeroInv, valRestToZeroInv, imgToZeroInv, pgmToZeroInv = dataset(thresh, max, "toZeroInv")
+    printInfo(imgResToZeroInv, valRestToZeroInv, imgToZeroInv, pgmToZeroInv, "toZeroInv")
 
 main()
