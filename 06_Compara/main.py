@@ -234,18 +234,25 @@ def dataset(thresh, max, type):
         pgms[j] = cv2.imread(pgm)
         j = j + 1
 
-    maisSemelhante = ""
-    valorMaisSemelhante = 99999999999999999
+    #maisSemelhante = ""
+    listaValorSemelhante = []
 
     aux = 0
+    imgBestMSE = imgs[0]
+    pgmBestMSE = pgms[0]
+    auxMaisSemelhante = 999999999
     for img in imgs:
         err = mse(imgs[aux], pgms[aux])
-        if err < valorMaisSemelhante:
-            valorMaisSemelhante = err
-            maisSemelhante = aux
+        if err < auxMaisSemelhante:
+            auxMaisSemelhante = err
+            imgBestMSE = imgs[aux]
+            pgmBestMSE = pgms[aux]
+        listaValorSemelhante.insert(aux, err)
         aux = aux + 1
     
-    return maisSemelhante, valorMaisSemelhante, imgs[maisSemelhante], pgms[maisSemelhante]
+    somaListaSemelhante = sum(listaValorSemelhante)
+
+    return somaListaSemelhante, imgBestMSE, pgmBestMSE
 
 def similarity(imageA, imageB):
     imageA = cv2.cvtColor(imageA, cv2.COLOR_BGR2GRAY)
@@ -271,12 +278,43 @@ def mse(imageA, imageB):
 	
 	return err
 
-def printInfo(imgRes, valRes, img, pgm, type):
-    print("\nMais semelhante " + str(type) + " : " + str(imgRes))
-    print("Valor MSE da imagem: " + str(valRes))
-    similaridade = similarity(img, pgm)
-    print(f"Porcentagem de similaridade: {similaridade:.3f}\n")
-    displayDouble(type, img, pgm, 12, 6)
+def printInfo(valRes, thresh, tipo):
+    print("\nTipo: " + tipo)
+    print("Valor MSE desse Thresh: " + str(valRes))
+    print("O melhor Thresh foi: " + str(thresh)) 
+    #similaridade = similarity(img, pgm)
+    #print(f"Porcentagem de similaridade: {similaridade:.3f}\n")
+    #displayDouble(type, img, pgm, 12, 6)
+
+def printInfoPercent(valRes, thresh, tipo, bestImg, bestPgm):
+    print("\nTipo: " + tipo)
+    print("Valor MSE desse Thresh: " + str(valRes))
+    print("O melhor Thresh foi: " + str(thresh)) 
+    similaridade = similarity(bestImg, bestPgm)
+    print(f"Imagem com melhor semelhanca: {similaridade:.3f}\n")
+    displayDouble(tipo, bestImg, bestPgm, 12, 6)
+
+def checkBestThresh(thresh, max, type):
+    bestThresh = 999999999999
+    auxThresh = 0
+    for i in range(len(thresh)):
+        somaRes, bestImg, bestPgm = dataset(thresh[i], max, type)
+        if somaRes < bestThresh:
+            bestThresh = somaRes
+            auxThresh = thresh[i]
+
+    return bestThresh, auxThresh, bestImg, bestPgm
+
+def checkAllBestThresh(max, type):
+    bestThresh = 999999999999
+    auxThresh = 0
+    for i in range(255):
+        somaRes = dataset(i, max, type)
+        if somaRes < bestThresh:
+            bestThresh = somaRes
+            auxThresh = i
+
+    return bestThresh, auxThresh
 
 def main():
     '''imgGetul = cv2.imread("images/carta_getulio.jpg")
@@ -292,22 +330,22 @@ def main():
     displayAllLimiar(BGRToRGB(imgMap2), 220, 255, 12, 6)
     displayAllLimiar(BGRToRGB(imgMap3), 200, 255, 12, 6)'''
 
-    thresh = 100
+    threshList = [25, 90, 120, 170, 210]
     max = 255
 
-    imgResBinary, valResBinary, imgBinary, pgmBinary = dataset(thresh, max, "binary")
-    printInfo(imgResBinary, valResBinary, imgBinary, pgmBinary, "binary")
+    bestResBinary, threshBinary, bestImgBinary, bestPgmBinary = checkBestThresh(threshList, max, "binary")#checkAllBestThresh(max, "binary")
+    printInfoPercent(bestResBinary, threshBinary, "binary", bestImgBinary, bestPgmBinary)
 
-    imgResBinaryInv, valResBinaryInv, imgBinaryInv, pgmBinaryInv = dataset(thresh, max, "binaryInv")
-    printInfo(imgResBinaryInv, valResBinaryInv, imgBinaryInv, pgmBinaryInv, "binaryInv")
+    bestResBinaryInv, threshBinaryInv, bestImgBinaryInv, bestPgmBinaryInv = checkBestThresh(threshList, max, "binaryInv")#checkAllBestThresh(max, "binaryInv")
+    printInfoPercent(bestResBinaryInv, threshBinaryInv, "binaryInv", bestImgBinaryInv, bestPgmBinaryInv)
 
-    imgResTrunc, valResTrunc, imgTrunc, pgmTrunc = dataset(thresh, max, "trunc")
-    printInfo(imgResTrunc, valResTrunc, imgTrunc, pgmTrunc, "trunc")
+    bestResTrunc, threshTrunc, bestImgTrunc, bestPgmTrunc = checkBestThresh(threshList, max, "trunc")#checkAllBestThresh(max, "trunc")
+    printInfoPercent(bestResTrunc, threshTrunc, "trunc", bestImgTrunc, bestPgmTrunc)
 
-    imgResToZero, valRestToZero, imgToZero, pgmToZero = dataset(thresh, max, "toZero")
-    printInfo(imgResToZero, valRestToZero, imgToZero, pgmToZero, "toZero")
+    bestResToZero, threshToZero, bestImgToZeroy, bestPgmToZero = checkBestThresh(threshList, max, "toZero")#checkAllBestThresh(max, "toZero")
+    printInfoPercent(bestResToZero, threshToZero, "toZero", bestImgToZeroy, bestPgmToZero)
 
-    imgResToZeroInv, valRestToZeroInv, imgToZeroInv, pgmToZeroInv = dataset(thresh, max, "toZeroInv")
-    printInfo(imgResToZeroInv, valRestToZeroInv, imgToZeroInv, pgmToZeroInv, "toZeroInv")
+    bestResToZeroInv, threshToZeroInv, bestImgToZeroInv, bestPgmToZeroInv = checkBestThresh(threshList, max, "toZeroInv")#checkAllBestThresh(max, "toZeroInv")
+    printInfoPercent(bestResToZeroInv, threshToZeroInv, "toZeroInv", bestImgToZeroInv, bestPgmToZeroInv)
 
 main()
