@@ -1,4 +1,5 @@
 import cv2
+import numpy as np
 from matplotlib import pyplot as plt
 
 def display(image):
@@ -123,6 +124,10 @@ def aprimora_imagem(imgOg, imgLowpass, imgHighpass, pct1, pct2):
 
     return resImage
 
+def customFilter(image, kernel):
+    image = cv2.filter2D(image, -1, kernel)
+    return image
+
 def main():
     img = cv2.imread("images/03.jpg")
     img = BGRToRGB(img)
@@ -133,7 +138,24 @@ def main():
     CannyT_upper = 255
     CannyT_lower = 200
 
-    imgAverage = filterAverage(img, ksizeA, ksizeB)
+    customKernelIdentity = np.array([[0, 0, 0],
+                            [0, 1, 0],
+                            [0, 0, 0]])
+
+    customKernelBlur = np.array([[1, 1, 1, 1, 1],
+                                 [1, 1, 1, 1, 1],
+                                 [1, 1, 1, 1, 1],
+                                 [1, 1, 1, 1, 1],
+                                 [1, 1, 1, 1, 1]])
+    
+    customKernelBlur = customKernelBlur/25
+
+    imgCustom = customFilter(img, customKernelBlur)
+
+    display(img)
+    display(imgCustom)
+
+    """ imgAverage = filterAverage(img, ksizeA, ksizeB)
     imgGauss = filterGauss(img, ksizeA, ksizeB)
     imgMedian = filterMedian(img, ksizeUnico)
     imgSobel = filterSobel(img, ksizeUnico)
@@ -142,5 +164,5 @@ def main():
     displayMultiple(imgAverage, imgGauss, imgMedian, imgSobel, imgLaplace, imgCannyEdge, 12, 7)
     imgAprimorada = aprimora_imagem(img, imgMedian, imgCannyEdge, 0.8, 0.2)
     displayCombination(img, imgMedian, imgCannyEdge, imgAprimorada, 12, 5)
-
+ """
 main()
