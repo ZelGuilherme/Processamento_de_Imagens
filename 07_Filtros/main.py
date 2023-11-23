@@ -125,8 +125,15 @@ def aprimora_imagem(imgOg, imgLowpass, imgHighpass, pct1, pct2):
     return resImage
 
 def customFilter(image, kernel):
-    image = cv2.filter2D(image, -1, kernel)
-    return image
+    if(len(kernel) <= 3):
+        image = cv2.filter2D(image, -1, kernel)
+        return image
+    else:
+        print(len(kernel), "  |  ", len(kernel[0]))
+        kernel = kernel/(len(kernel)*len(kernel[0]))
+        print(kernel)
+        image = cv2.filter2D(image, -1, kernel)
+        return image
 
 def main():
     img = cv2.imread("images/03.jpg")
@@ -148,11 +155,9 @@ def main():
                                  [1, 1, 1, 1, 1],
                                  [1, 1, 1, 1, 1]])
     
-    customKernelBlur = customKernelBlur/25
-
     imgCustom = customFilter(img, customKernelBlur)
 
-    display(img)
+    #display(img)
     display(imgCustom)
 
     """ imgAverage = filterAverage(img, ksizeA, ksizeB)
